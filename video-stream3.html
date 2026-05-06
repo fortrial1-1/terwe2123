@@ -167,6 +167,7 @@
             </div>
 
             <div class="nav-links">
+                <span id="username-display" style="color:#aaa; font-size:14px;"></span>
                 <a href="index.html">← Back Home</a>
                 <a href="#" onclick="toggleFullscreen()">Fullscreen</a>
                 <button class="btn-logout" onclick="logout()">🚪 Logout</button>
@@ -175,6 +176,9 @@
     </div>
 
     <script>
+        const user = localStorage.getItem('currentUser');
+        if (user) document.getElementById('username-display').textContent = '👤 ' + user;
+
         function logout() {
             localStorage.removeItem('currentUser');
             window.location.replace('index.html');
