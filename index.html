@@ -354,8 +354,11 @@
                 <div class="error-message" id="errorMessage">❌ Invalid username or password</div>
                 <div class="success-message" id="successMessage">✅ Login successful!</div>
                 <div class="hint-text">
-                    📝 Valid credentials are checked against users.json<br>
-                    Try: <strong>admin / admin123</strong>
+                    📝 Valid users from database:<br>
+                    <strong>admin / admin123</strong><br>
+                    <strong>KcoN26 / LEtSKc0N!</strong><br>
+                    <strong>user2 / pass456</strong><br>
+                    <strong>test / test123</strong>
                 </div>
             </form>
         </div>
@@ -393,26 +396,41 @@
     </div>
 
     <script>
-        // Load users from users.json
-        let validUsers = [];
-
-        async function loadUsers() {
-            try {
-                const response = await fetch('users.json');
-                const data = await response.json();
-                validUsers = data.users || [];
-                console.log('✅ Users loaded:', validUsers.length, 'users found');
-            } catch (error) {
-                console.error('❌ Error loading users.json:', error);
-                validUsers = []; // Fallback to empty array
+        // HARDCODED USERS DATABASE (Embedded in HTML)
+        const validUsers = [
+            {
+                "id": 1,
+                "username": "admin",
+                "password": "admin123",
+                "email": "admin@example.com"
+            },
+            {
+                "id": 2,
+                "username": "KcoN26",
+                "password": "LEtSKc0N!",
+                "email": "default@gmail.com"
+            },
+            {
+                "id": 3,
+                "username": "user2",
+                "password": "pass456",
+                "email": "user2@example.com"
+            },
+            {
+                "id": 4,
+                "username": "test",
+                "password": "test123",
+                "email": "test@example.com"
             }
-        }
+        ];
 
-        // Load users when page loads
-        window.addEventListener('DOMContentLoaded', async function() {
-            await loadUsers();
+        console.log('✅ Valid users database loaded:', validUsers.length, 'users');
 
+        // Check if user is logged in when page loads
+        window.addEventListener('DOMContentLoaded', function() {
             const currentUser = localStorage.getItem('currentUser');
+            console.log('📌 Current user from storage:', currentUser);
+            
             if (currentUser) {
                 showMainContent(currentUser);
             } else {
@@ -421,27 +439,30 @@
         });
 
         // Handle login form submission
-        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
             const username = document.getElementById('username').value.trim();
             const password = document.getElementById('password').value;
+            
+            console.log('🔐 Login attempt:', username);
             
             // Hide previous messages
             document.getElementById('errorMessage').style.display = 'none';
             document.getElementById('successMessage').style.display = 'none';
 
             if (!username || !password) {
+                console.log('❌ Empty credentials');
                 showError('Please enter both username and password');
                 return;
             }
 
-            // Validate against users.json database
+            // STRICT validation against embedded database
             const user = validUsers.find(u => u.username === username && u.password === password);
 
             if (user) {
                 // Valid credentials
-                console.log('✅ Login successful for:', username);
+                console.log('✅ Login successful! User:', user.username, 'ID:', user.id);
                 document.getElementById('successMessage').style.display = 'block';
                 
                 // Store user session in localStorage
@@ -456,8 +477,9 @@
                 }, 500);
             } else {
                 // Invalid credentials
-                console.log('❌ Login failed - invalid credentials for:', username);
-                showError('Invalid username or password. Try admin/admin123');
+                console.log('❌ Login REJECTED - no matching user');
+                console.log('Available users:', validUsers.map(u => u.username).join(', '));
+                showError('Invalid username or password. Check the hint below.');
             }
         });
 
@@ -479,6 +501,7 @@
         }
 
         function logout() {
+            console.log('🚪 Logging out user');
             localStorage.removeItem('currentUser');
             document.getElementById('loginForm').reset();
             document.getElementById('errorMessage').style.display = 'none';
@@ -487,9 +510,8 @@
         }
 
         // Prevent back button access after logout
-        window.addEventListener('pageshow', async function(event) {
+        window.addEventListener('pageshow', function(event) {
             if (event.persisted) {
-                await loadUsers(); // Reload users in case they were updated
                 const currentUser = localStorage.getItem('currentUser');
                 if (!currentUser) {
                     showLoginForm();
