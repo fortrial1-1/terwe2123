@@ -459,10 +459,9 @@
             const currentUser = localStorage.getItem('currentUser');
             if (currentUser) {
                 console.log('🚪 SESSION TERMINATED:', reason);
-                console.log('👤 User logged out:', currentUser);
-                console.log('⏰ Logout time:', new Date().toLocaleTimeString());
                 localStorage.removeItem('currentUser');
                 clearSessionTimer();
+                fetch('/api/logout', { method: 'POST', credentials: 'same-origin' }).catch(() => {});
             }
         }
 
@@ -550,54 +549,49 @@
         });
 
         // Handle login form submission
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
             const username = document.getElementById('username').value.trim();
             const password = document.getElementById('password').value;
             
             console.log('🔐 Login attempt:', username);
-            console.log('⏰ Login time:', new Date().toLocaleTimeString());
             
             // Hide previous messages
             document.getElementById('errorMessage').style.display = 'none';
             document.getElementById('successMessage').style.display = 'none';
 
             if (!username || !password) {
-                console.log('❌ Empty credentials');
                 showError('Please enter both username and password');
                 return;
             }
 
-            // STRICT validation against embedded database
-            const user = validUsers.find(u => u.username === username && u.password === password);
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'same-origin',
+                    body: JSON.stringify({ username, password })
+                });
+                const data = await response.json();
 
-            if (user) {
-                // Valid credentials
-                console.log('✅ Login successful!');
-                console.log('   User:', user.username, '| ID:', user.id, '| Email:', user.email);
-                document.getElementById('successMessage').style.display = 'block';
-                
-                // Store user session in localStorage
-                localStorage.setItem('currentUser', username);
-                console.log('💾 User session saved to localStorage');
-                console.log('⏰ Session start time:', new Date().toLocaleTimeString());
-                
-                // Clear form
-                document.getElementById('loginForm').reset();
-                
-                // Show main content after short delay
-                setTimeout(() => {
-                    showMainContent(username);
-                    showSessionWarning();
-                    startSessionTimer();
-                    console.log('✅ Session timer started for user:', username);
-                }, 500);
-            } else {
-                // Invalid credentials
-                console.log('❌ Login REJECTED - no matching user');
-                console.log('Available users:', validUsers.map(u => u.username).join(', '));
-                showError('Invalid username or password');
+                if (response.ok && data.success) {
+                    console.log('✅ Login successful!');
+                    document.getElementById('successMessage').style.display = 'block';
+                    localStorage.setItem('currentUser', username);
+                    document.getElementById('loginForm').reset();
+                    setTimeout(() => {
+                        showMainContent(username);
+                        showSessionWarning();
+                        startSessionTimer();
+                    }, 500);
+                } else {
+                    console.log('❌ Login REJECTED');
+                    showError(data.error || 'Invalid username or password');
+                }
+            } catch (err) {
+                console.error('Login error:', err);
+                showError('Unable to connect to server. Please try again.');
             }
         });
 

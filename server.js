@@ -2,14 +2,23 @@ const express = require('express');
 const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
+const session = require('express-session');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Middleware
-app.use(cors());
+app.use(cors({ origin: true, credentials: true }));
 app.use(express.json());
-app.use(express.static(__dirname));
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'streamrooms-secret-key',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    httpOnly: true,
+    maxAge: 24 * 60 * 60 * 1000
+  }
+}));
 
 // Path to users.json
 const usersFilePath = path.join(__dirname, 'users.json');
@@ -36,9 +45,26 @@ function writeUsers(users) {
   }
 }
 
+// Auth middleware — protects stream pages
+function requireAuth(req, res, next) {
+  if (req.session && req.session.user) {
+    return next();
+  }
+  res.redirect('/index.html?authRequired=1');
+}
+
 // Health check endpoint
 app.get('/api/health', (req, res) => {
   res.json({ status: 'Server is running', timestamp: new Date() });
+});
+
+// Check session status
+app.get('/api/session', (req, res) => {
+  if (req.session && req.session.user) {
+    res.json({ loggedIn: true, user: req.session.user });
+  } else {
+    res.json({ loggedIn: false });
+  }
 });
 
 // Login endpoint
@@ -53,18 +79,38 @@ app.post('/api/login', (req, res) => {
   const user = users.find(u => u.username === username && u.password === password);
 
   if (user) {
+    req.session.user = { id: user.id, username: user.username, email: user.email };
     res.json({
       success: true,
       message: 'Login successful',
-      user: {
-        id: user.id,
-        username: user.username,
-        email: user.email
-      }
+      user: { id: user.id, username: user.username, email: user.email }
     });
   } else {
     res.status(401).json({ error: 'Invalid credentials' });
   }
+});
+
+// Logout endpoint
+app.post('/api/logout', (req, res) => {
+  req.session.destroy((err) => {
+    if (err) {
+      return res.status(500).json({ error: 'Could not log out' });
+    }
+    res.json({ success: true, message: 'Logged out successfully' });
+  });
+});
+
+// Protected stream pages
+app.get('/video-stream.html', requireAuth, (req, res) => {
+  res.sendFile(path.join(__dirname, 'video-stream.html'));
+});
+
+app.get('/video-stream2.html', requireAuth, (req, res) => {
+  res.sendFile(path.join(__dirname, 'video-stream2.html'));
+});
+
+app.get('/video-stream3.html', requireAuth, (req, res) => {
+  res.sendFile(path.join(__dirname, 'video-stream3.html'));
 });
 
 // Get all users
@@ -77,7 +123,6 @@ app.get('/api/users', (req, res) => {
 app.get('/api/users/:id', (req, res) => {
   const users = readUsers();
   const user = users.find(u => u.id === parseInt(req.params.id));
-
   if (user) {
     res.json(user);
   } else {
@@ -88,34 +133,22 @@ app.get('/api/users/:id', (req, res) => {
 // Create new user
 app.post('/api/users', (req, res) => {
   const { username, password, email } = req.body;
-
   if (!username || !password || !email) {
     return res.status(400).json({ error: 'Username, password, and email are required' });
   }
-
   const users = readUsers();
-
-  // Check if username already exists
   if (users.find(u => u.username === username)) {
     return res.status(400).json({ error: 'Username already exists' });
   }
-
-  // Create new user
   const newUser = {
     id: users.length > 0 ? Math.max(...users.map(u => u.id)) + 1 : 1,
     username,
     password,
     email
   };
-
   users.push(newUser);
-
   if (writeUsers(users)) {
-    res.status(201).json({
-      success: true,
-      message: 'User created successfully',
-      user: newUser
-    });
+    res.status(201).json({ success: true, message: 'User created successfully', user: newUser });
   } else {
     res.status(500).json({ error: 'Failed to create user' });
   }
@@ -126,22 +159,14 @@ app.put('/api/users/:id', (req, res) => {
   const { username, password, email } = req.body;
   const users = readUsers();
   const userIndex = users.findIndex(u => u.id === parseInt(req.params.id));
-
   if (userIndex === -1) {
     return res.status(404).json({ error: 'User not found' });
   }
-
-  // Update user fields
   if (username) users[userIndex].username = username;
   if (password) users[userIndex].password = password;
   if (email) users[userIndex].email = email;
-
   if (writeUsers(users)) {
-    res.json({
-      success: true,
-      message: 'User updated successfully',
-      user: users[userIndex]
-    });
+    res.json({ success: true, message: 'User updated successfully', user: users[userIndex] });
   } else {
     res.status(500).json({ error: 'Failed to update user' });
   }
@@ -151,25 +176,21 @@ app.put('/api/users/:id', (req, res) => {
 app.delete('/api/users/:id', (req, res) => {
   const users = readUsers();
   const userIndex = users.findIndex(u => u.id === parseInt(req.params.id));
-
   if (userIndex === -1) {
     return res.status(404).json({ error: 'User not found' });
   }
-
   const deletedUser = users.splice(userIndex, 1);
-
   if (writeUsers(users)) {
-    res.json({
-      success: true,
-      message: 'User deleted successfully',
-      user: deletedUser[0]
-    });
+    res.json({ success: true, message: 'User deleted successfully', user: deletedUser[0] });
   } else {
     res.status(500).json({ error: 'Failed to delete user' });
   }
 });
 
-// Serve static files
+// Serve static files (non-protected)
+app.use(express.static(__dirname));
+
+// Serve index
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
@@ -183,9 +204,12 @@ app.use((err, req, res, next) => {
 // Start server
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`\n🚀 Stream Rooms Server is running on http://localhost:${PORT}`);
+  console.log(`🔒 Protected routes: /video-stream.html, /video-stream2.html, /video-stream3.html`);
   console.log(`📊 Database: ${usersFilePath}`);
   console.log(`\n📝 API Endpoints:`);
   console.log(`   POST   /api/login          - Login with username/password`);
+  console.log(`   POST   /api/logout         - Logout and destroy session`);
+  console.log(`   GET    /api/session        - Check current session`);
   console.log(`   GET    /api/users          - Get all users`);
   console.log(`   GET    /api/users/:id      - Get user by ID`);
   console.log(`   POST   /api/users          - Create new user`);

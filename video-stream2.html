@@ -154,6 +154,19 @@
     </div>
 
     <script>
+        // Auth guard — redirect to login if no server session
+        (async function() {
+            try {
+                const res = await fetch('/api/session', { credentials: 'same-origin' });
+                const data = await res.json();
+                if (!data.loggedIn) {
+                    window.location.href = '/index.html?authRequired=1';
+                }
+            } catch (e) {
+                window.location.href = '/index.html?authRequired=1';
+            }
+        })();
+
         function toggleFullscreen() {
             const videoWrapper = document.querySelector('.video-wrapper');
             if (!document.fullscreenElement) {
