@@ -4,11 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Video Stream</title>
-    <script>
-        if (!localStorage.getItem('currentUser')) {
-            window.location.replace('index.html');
-        }
-    </script>
     <style>
         * {
             margin: 0;
@@ -103,21 +98,6 @@
             color: #45a049;
         }
 
-        .btn-logout {
-            color: #ff5252 !important;
-            cursor: pointer;
-            background: none;
-            border: none;
-            font-size: 14px;
-            font-family: inherit;
-            padding: 0;
-            transition: color 0.3s;
-        }
-
-        .btn-logout:hover {
-            color: #ff1744 !important;
-        }
-
         @media (max-width: 768px) {
             .video-title {
                 font-size: 18px;
@@ -167,23 +147,13 @@
             </div>
 
             <div class="nav-links">
-                <span id="username-display" style="color:#aaa; font-size:14px;"></span>
                 <a href="index.html">← Back Home</a>
                 <a href="#" onclick="toggleFullscreen()">Fullscreen</a>
-                <button class="btn-logout" onclick="logout()">🚪 Logout</button>
             </div>
         </div>
     </div>
 
     <script>
-        const user = localStorage.getItem('currentUser');
-        if (user) document.getElementById('username-display').textContent = '👤 ' + user;
-
-        function logout() {
-            localStorage.removeItem('currentUser');
-            window.location.replace('index.html');
-        }
-
         function toggleFullscreen() {
             const videoWrapper = document.querySelector('.video-wrapper');
             if (!document.fullscreenElement) {
