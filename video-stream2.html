@@ -154,16 +154,19 @@
     </div>
 
     <script>
-        // Auth guard — redirect to login if no server session
+        // Auth guard — redirect to login if no server session or localStorage session
         (async function() {
             try {
                 const res = await fetch('/api/session', { credentials: 'same-origin' });
                 const data = await res.json();
                 if (!data.loggedIn) {
-                    window.location.href = '/index.html?authRequired=1';
+                    window.location.replace('index.html?authRequired=1&redirect=video-stream2.html');
                 }
             } catch (e) {
-                window.location.href = '/index.html?authRequired=1';
+                // No server (e.g. GitHub Pages) — fall back to localStorage check
+                if (!localStorage.getItem('currentUser')) {
+                    window.location.replace('index.html?authRequired=1&redirect=video-stream2.html');
+                }
             }
         })();
 
