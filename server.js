@@ -181,7 +181,7 @@ app.use((err, req, res, next) => {
 });
 
 // Start server
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`\n🚀 Stream Rooms Server is running on http://localhost:${PORT}`);
   console.log(`📊 Database: ${usersFilePath}`);
   console.log(`\n📝 API Endpoints:`);
