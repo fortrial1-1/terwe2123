@@ -21,6 +21,100 @@
             padding: 20px;
         }
 
+        /* Login Modal Styles */
+        .login-modal {
+            display: flex;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-modal.hidden {
+            display: none;
+        }
+
+        .login-container {
+            background: white;
+            padding: 50px 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .login-container h2 {
+            color: #333;
+            font-size: 2em;
+            margin-bottom: 30px;
+            font-weight: 700;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            color: #555;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 0.95em;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .login-btn:active {
+            transform: translateY(0);
+        }
+
+        .error-message {
+            color: #f5576c;
+            font-size: 0.9em;
+            margin-top: 15px;
+            display: none;
+        }
+
+        /* Main Content Styles */
         .container {
             text-align: center;
             background: rgba(255, 255, 255, 0.95);
@@ -31,11 +125,49 @@
             width: 100%;
         }
 
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #eee;
+        }
+
         h1 {
             color: #333;
             font-size: 2.5em;
-            margin-bottom: 15px;
+            margin: 0;
             font-weight: 700;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-name {
+            color: #666;
+            font-size: 1em;
+            font-weight: 600;
+        }
+
+        .logout-btn {
+            padding: 8px 16px;
+            background: #f5576c;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background: #d93a54;
+            transform: translateY(-2px);
         }
 
         .subtitle {
@@ -46,9 +178,9 @@
 
         .buttons-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(3, 1fr);
             gap: 25px;
-            margin-top: 40px;
+            margin-bottom: 40px;
         }
 
         .btn {
@@ -109,6 +241,49 @@
             background: linear-gradient(135deg, #2bc968 0%, #1dd9c1 100%);
         }
 
+        /* Main Room Button Styles */
+        .main-room-container {
+            margin-top: 30px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .btn-main-room {
+            padding: 40px 60px;
+            font-size: 1.5em;
+            background: linear-gradient(135deg, #ff6b6b 0%, #ff8787 100%);
+            color: white;
+            width: 300px;
+            height: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 16px;
+        }
+
+        .btn-main-room:hover {
+            background: linear-gradient(135deg, #ff5252 0%, #ff6e6e 100%);
+            transform: scale(1.08) translateY(-5px);
+            box-shadow: 0 15px 40px rgba(255, 107, 107, 0.4);
+        }
+
+        .btn-main-room:active {
+            transform: scale(1.05) translateY(-2px);
+        }
+
+        @media (max-width: 1024px) {
+            .buttons-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .btn-main-room {
+                padding: 30px 50px;
+                font-size: 1.3em;
+                width: 250px;
+                height: 120px;
+            }
+        }
+
         @media (max-width: 768px) {
             h1 {
                 font-size: 1.8em;
@@ -116,6 +291,13 @@
 
             .container {
                 padding: 40px 25px;
+            }
+
+            .header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+                margin-bottom: 30px;
             }
 
             .buttons-grid {
@@ -127,12 +309,46 @@
                 padding: 15px 25px;
                 font-size: 1em;
             }
+
+            .btn-main-room {
+                padding: 25px 40px;
+                font-size: 1.2em;
+                width: 100%;
+                height: 100px;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>🎬 Stream Rooms</h1>
+    <!-- Login Modal -->
+    <div class="login-modal" id="loginModal">
+        <div class="login-container">
+            <h2>🔐 Login</h2>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" placeholder="Enter your username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" placeholder="Enter your password" required>
+                </div>
+                <button type="submit" class="login-btn">Login</button>
+                <div class="error-message" id="errorMessage">Invalid username or password</div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container" id="mainContent" style="display: none;">
+        <div class="header">
+            <h1>🎬 Stream Rooms</h1>
+            <div class="user-info">
+                <span class="user-name">👤 <span id="displayUsername"></span></span>
+                <button class="logout-btn" onclick="logout()">Logout</button>
+            </div>
+        </div>
+        
         <p class="subtitle">Select a room to join</p>
         
         <div class="buttons-grid">
@@ -145,10 +361,78 @@
             <a href="room-stream3.html" class="btn btn-tertiary">
                 🎥 Room Stream 3
             </a>
-            <a href="main-room-stream.html" class="btn btn-quaternary">
-                ⭐ Main Room Stream
+        </div>
+
+        <div class="main-room-container">
+            <a href="main-room-stream.html" class="btn btn-main-room">
+                ⭐ MAIN ROOM STREAM
             </a>
         </div>
     </div>
+
+    <script>
+        // Check if user is logged in when page loads
+        window.addEventListener('DOMContentLoaded', function() {
+            const currentUser = localStorage.getItem('currentUser');
+            if (currentUser) {
+                showMainContent(currentUser);
+            } else {
+                showLoginForm();
+            }
+        });
+
+        // Handle login form submission
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+            
+            // Simple validation (in production, this would call a backend API)
+            if (username && password) {
+                // Store user session in localStorage
+                localStorage.setItem('currentUser', username);
+                
+                // Clear form
+                document.getElementById('loginForm').reset();
+                document.getElementById('errorMessage').style.display = 'none';
+                
+                // Show main content
+                showMainContent(username);
+            } else {
+                document.getElementById('errorMessage').style.display = 'block';
+            }
+        });
+
+        function showLoginForm() {
+            document.getElementById('loginModal').classList.remove('hidden');
+            document.getElementById('mainContent').style.display = 'none';
+        }
+
+        function showMainContent(username) {
+            document.getElementById('loginModal').classList.add('hidden');
+            document.getElementById('mainContent').style.display = 'block';
+            document.getElementById('displayUsername').textContent = username;
+        }
+
+        function logout() {
+            localStorage.removeItem('currentUser');
+            document.getElementById('loginForm').reset();
+            document.getElementById('errorMessage').style.display = 'none';
+            showLoginForm();
+        }
+
+        // Prevent back button access after logout
+        window.addEventListener('pageshow', function(event) {
+            if (event.persisted) {
+                const currentUser = localStorage.getItem('currentUser');
+                if (!currentUser) {
+                    showLoginForm();
+                } else {
+                    showMainContent(currentUser);
+                }
+            }
+        });
+    </script>
 </body>
 </html>
