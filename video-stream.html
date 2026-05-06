@@ -103,6 +103,21 @@
             color: #45a049;
         }
 
+        .btn-logout {
+            color: #ff5252 !important;
+            cursor: pointer;
+            background: none;
+            border: none;
+            font-size: 14px;
+            font-family: inherit;
+            padding: 0;
+            transition: color 0.3s;
+        }
+
+        .btn-logout:hover {
+            color: #ff1744 !important;
+        }
+
         @media (max-width: 768px) {
             .video-title {
                 font-size: 18px;
@@ -154,11 +169,17 @@
             <div class="nav-links">
                 <a href="index.html">← Back Home</a>
                 <a href="#" onclick="toggleFullscreen()">Fullscreen</a>
+                <button class="btn-logout" onclick="logout()">🚪 Logout</button>
             </div>
         </div>
     </div>
 
     <script>
+        function logout() {
+            localStorage.removeItem('currentUser');
+            window.location.replace('index.html');
+        }
+
         function toggleFullscreen() {
             const videoWrapper = document.querySelector('.video-wrapper');
             if (!document.fullscreenElement) {
