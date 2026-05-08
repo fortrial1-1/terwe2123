@@ -119,6 +119,10 @@ app.get('/video-stream3.html', requireAuth, (req, res) => {
   res.sendFile(path.join(__dirname, 'video-stream3.html'));
 });
 
+app.get('/downloads.html', requireAuth, (req, res) => {
+  res.sendFile(path.join(__dirname, 'downloads.html'));
+});
+
 // Get all users
 app.get('/api/users', (req, res) => {
   const users = readUsers();
