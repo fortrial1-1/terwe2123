@@ -170,6 +170,12 @@
         </div>
 
         <a href="index.html" class="nav-back">← Back to Stream Rooms</a>
+
+        <div style="margin-top: 20px;">
+            <button onclick="logout()" style="background: linear-gradient(135deg, #ff6b6b, #ff5252); color: white; border: none; padding: 12px 30px; border-radius: 10px; font-size: 0.95em; font-weight: 600; cursor: pointer; transition: opacity 0.3s;" onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">
+                🚪 Logout
+            </button>
+        </div>
     </div>
 
     <script>
@@ -186,6 +192,14 @@
                 }
             }
         })();
+
+        async function logout() {
+            try {
+                await fetch('/api/logout', { method: 'POST', credentials: 'same-origin' });
+            } catch (e) {}
+            localStorage.removeItem('currentUser');
+            window.location.replace('index.html');
+        }
     </script>
 </body>
 </html>
