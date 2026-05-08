@@ -7,6 +7,9 @@ const session = require('express-session');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// Trust Replit's reverse proxy so cookies work correctly over HTTPS on all devices
+app.set('trust proxy', 1);
+
 // Middleware
 app.use(cors({ origin: true, credentials: true }));
 app.use(express.json());
@@ -16,6 +19,8 @@ app.use(session({
   saveUninitialized: false,
   cookie: {
     httpOnly: true,
+    sameSite: 'lax',
+    secure: false,
     maxAge: 24 * 60 * 60 * 1000
   }
 }));
