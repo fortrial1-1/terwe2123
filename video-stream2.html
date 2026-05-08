@@ -147,6 +147,7 @@
             <div class="nav-links">
                 <a href="index.html">← Back Home</a>
                 <a href="#" onclick="toggleFullscreen()">Fullscreen</a>
+                <a href="#" onclick="logout()">🚪 Logout</a>
             </div>
         </div>
     </div>
@@ -177,6 +178,14 @@
             } else {
                 document.exitFullscreen();
             }
+        }
+
+        async function logout() {
+            try {
+                await fetch('/api/logout', { method: 'POST', credentials: 'same-origin' });
+            } catch (e) {}
+            localStorage.removeItem('currentUser');
+            window.location.replace('index.html');
         }
 
         function copyStreamLink() {
