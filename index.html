@@ -579,6 +579,7 @@
         </p>
 
         <div class="glass-box">
+            <div id="dashPill" style="display:flex;justify-content:center;margin-bottom:14px;"></div>
             <p class="rooms-label">Select a room to join</p>
 
             <div class="rooms-grid">
@@ -782,9 +783,9 @@
             const live = rooms.filter(r => r.live);
             const desktopEl = document.getElementById('desktopIsland');
             const mobileEl  = document.getElementById('mobileIsland');
+            const dashEl    = document.getElementById('dashPill');
 
             if (live.length === 0) {
-                // Nothing live — render offline pill (no badge)
                 const html = `<div class="island-pill">
                     <div class="island-dot-wrap">
                         <div class="island-dot" style="background:#555"></div>
@@ -795,6 +796,7 @@
                 </div>`;
                 if (desktopEl) desktopEl.innerHTML = html;
                 if (mobileEl)  mobileEl.innerHTML  = html;
+                if (dashEl)    dashEl.innerHTML     = html;
             } else {
                 const stagesHtml = live.map((r, i) =>
                     (i > 0 ? '<div class="island-sep"></div>' : '') +
@@ -813,6 +815,7 @@
                 </div>`;
                 if (desktopEl) desktopEl.innerHTML = html;
                 if (mobileEl)  mobileEl.innerHTML  = html;
+                if (dashEl)    dashEl.innerHTML     = html;
             }
         }
 
