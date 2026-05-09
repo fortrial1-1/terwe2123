@@ -900,7 +900,7 @@
         const initLocal = loadLocal();
         if (initLocal) { buildPill(initLocal); syncToggles(initLocal); }
         fetchStreams();
-        setInterval(fetchStreams, 10000); // poll every 10s so Device B updates quickly
+        setInterval(fetchStreams, 5000); // poll every 5s for fast cross-device sync
 
         // Force-play background video
         const vid = document.getElementById('bgVideo');
