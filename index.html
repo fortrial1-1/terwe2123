@@ -820,6 +820,15 @@
             }
         }
 
+        const STREAMS_LS_KEY = 'kcon_streams';
+
+        function saveLocal(rooms) {
+            try { localStorage.setItem(STREAMS_LS_KEY, JSON.stringify(rooms)); } catch(e) {}
+        }
+        function loadLocal() {
+            try { return JSON.parse(localStorage.getItem(STREAMS_LS_KEY) || 'null'); } catch(e) { return null; }
+        }
+
         function syncToggles(rooms) {
             rooms.forEach(r => {
                 const chk = document.getElementById('toggle-' + r.id);
@@ -829,28 +838,49 @@
             });
         }
 
+        function applyRooms(rooms) {
+            saveLocal(rooms);
+            buildPill(rooms);
+            syncToggles(rooms);
+        }
+
         function fetchStreams() {
             fetch('/api/streams')
                 .then(r => r.json())
-                .then(data => {
-                    const rooms = data.rooms || [];
-                    buildPill(rooms);
-                    syncToggles(rooms);
-                })
-                .catch(() => buildPill([]));
+                .then(data => applyRooms(data.rooms || []))
+                .catch(() => {
+                    const saved = loadLocal();
+                    if (saved) { buildPill(saved); syncToggles(saved); }
+                    else { buildPill([]); }
+                });
         }
 
         window.setLive = function setLive(id, live) {
-            const dot = document.getElementById('dot-' + id);
-            if (dot) dot.classList.toggle('on', live);
+            // 1. Update localStorage immediately so refresh keeps the state
+            const rooms = loadLocal() || [
+                {id:1,name:'Artist Stage',live:false},
+                {id:2,name:'X Stage',live:false},
+                {id:3,name:'Mcountdown Stage',live:false}
+            ];
+            const room = rooms.find(r => r.id === id);
+            if (room) room.live = live;
+            applyRooms(rooms);
+
+            // 2. Also tell the server (best-effort)
             fetch('/api/streams/' + id, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ live })
             })
             .then(r => r.json())
-            .then(() => fetchStreams())
-            .catch(err => console.error('Failed to update stream:', err));
+            .then(data => {
+                if (data.room) {
+                    const r2 = rooms.find(r => r.id === id);
+                    if (r2) r2.live = data.room.live;
+                    applyRooms(rooms);
+                }
+            })
+            .catch(() => {}); // localStorage already saved — pill stays correct
         }
 
         fetchStreams();
