@@ -247,6 +247,29 @@
         }
         .dash-schedule strong { color: rgba(255,255,255,0.7); }
 
+        .glass-box {
+            background: rgba(255,255,255,0.04);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255,255,255,0.10);
+            border-radius: 24px;
+            padding: 32px 28px 28px;
+            margin-bottom: 24px;
+            position: relative;
+            overflow: hidden;
+            box-shadow:
+                0 8px 40px rgba(0,0,0,0.45),
+                inset 0 1px 0 rgba(255,255,255,0.10),
+                inset 0 -1px 0 rgba(255,255,255,0.03);
+        }
+        .glass-box::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.18), transparent);
+        }
+
         .rooms-label { color: rgba(255,255,255,0.55); font-size: 11px; text-transform: uppercase; letter-spacing: 0.14em; font-weight: 600; margin-bottom: 18px; }
 
         .rooms-grid {
@@ -464,18 +487,20 @@
             Artist Stage (KISS OF LIFE, TWS, Hearts2Hearts) | X Stage (Produce 101 Japan SHINSEKAI, EVNNE)
         </p>
 
-        <p class="rooms-label">Select a room to join</p>
+        <div class="glass-box">
+            <p class="rooms-label">Select a room to join</p>
 
-        <div class="rooms-grid">
-            <a href="video-stream.html" class="room-card room-1">🎥 Room Stream 1</a>
-            <a href="video-stream2.html" class="room-card room-2">🎥 Room Stream 2</a>
-        </div>
+            <div class="rooms-grid">
+                <a href="video-stream.html" class="room-card room-1">🎥 Room Stream 1</a>
+                <a href="video-stream2.html" class="room-card room-2">🎥 Room Stream 2</a>
+            </div>
 
-        <div class="main-room-wrap">
-            <a href="video-stream3.html" class="room-main">⭐ MAIN ROOM STREAM</a>
-        </div>
-        <div class="main-room-wrap" style="margin-top:12px;">
-            <a href="downloads.html" class="room-main room-downloads">📥 Download Repository</a>
+            <div class="main-room-wrap">
+                <a href="video-stream3.html" class="room-main">⭐ MAIN ROOM STREAM</a>
+            </div>
+            <div class="main-room-wrap" style="margin-top:12px;">
+                <a href="downloads.html" class="room-main room-downloads">📥 Download Repository</a>
+            </div>
         </div>
 
         <div class="session-warning" id="sessionWarning">
