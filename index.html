@@ -845,7 +845,10 @@
             fetch('/api/streams/' + id, {
                 method: 'PATCH',
                 credentials: 'same-origin',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-username': localStorage.getItem('currentUser') || ''
+                },
                 body: JSON.stringify({ live })
             })
             .then(r => r.json())
