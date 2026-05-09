@@ -856,14 +856,22 @@
             syncToggles(rooms);
         }
 
+        const DEFAULT_ROOMS = [
+            {id:1, name:'Artist Stage',     live:false},
+            {id:2, name:'X Stage',          live:false},
+            {id:3, name:'Mcountdown Stage', live:false}
+        ];
+
         // Always fetch from server — server is the single source of truth for all devices
         function fetchStreams() {
             fetch('/api/streams?t=' + Date.now(), { cache: 'no-store' })
                 .then(r => r.json())
                 .then(data => applyRooms(data.rooms || []))
                 .catch(() => {
+                    // API unreachable — use localStorage if available, otherwise show defaults
                     const saved = loadLocal();
-                    if (saved) { buildPill(saved); syncToggles(saved); }
+                    buildPill(saved || DEFAULT_ROOMS);
+                    if (saved) syncToggles(saved);
                 });
         }
 
