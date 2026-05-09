@@ -97,6 +97,47 @@ function requireAuth(req, res, next) {
 
 
 // ── Streams API ──
+
+// SSE client registry — one entry per connected browser tab
+const sseClients = new Set();
+
+// Push the current state to every connected SSE client
+function broadcastStreams(data) {
+  const msg = `data: ${JSON.stringify(data)}\n\n`;
+  sseClients.forEach(client => {
+    try { client.write(msg); } catch (e) { sseClients.delete(client); }
+  });
+  console.log(`[sse] Broadcast to ${sseClients.size} client(s)`);
+}
+
+// SSE endpoint — browser connects once, server pushes updates instantly
+app.get('/api/streams/events', (req, res) => {
+  res.set({
+    'Content-Type':  'text/event-stream',
+    'Cache-Control': 'no-cache',
+    'Connection':    'keep-alive',
+    'X-Accel-Buffering': 'no',   // prevent nginx from buffering
+  });
+  res.flushHeaders();
+
+  // Send current state immediately on connect
+  res.write(`data: ${JSON.stringify(readStreams())}\n\n`);
+
+  sseClients.add(res);
+  console.log(`[sse] Client connected (total: ${sseClients.size})`);
+
+  // Keepalive every 25s so proxies don't close the connection
+  const keepalive = setInterval(() => {
+    try { res.write(': keepalive\n\n'); } catch (e) { clearInterval(keepalive); }
+  }, 25000);
+
+  req.on('close', () => {
+    clearInterval(keepalive);
+    sseClients.delete(res);
+    console.log(`[sse] Client disconnected (total: ${sseClients.size})`);
+  });
+});
+
 // Get all room live statuses (public — never cached)
 app.get('/api/streams', (req, res) => {
   res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
@@ -116,7 +157,8 @@ function handleStreamToggle(req, res) {
   if (!room) return res.status(404).json({ error: 'Room not found' });
   room.live = !!live;
   writeStreams(data);
-  console.log(`[streams] Room ${id} (${room.name}) set to live=${room.live} — state:`, data.rooms.map(r => `${r.name}:${r.live}`).join(', '));
+  console.log(`[streams] Room ${id} (${room.name}) → live=${room.live}`);
+  broadcastStreams(data);   // ← push to all connected devices instantly
   res.json({ success: true, room });
 }
 app.patch('/api/streams/:id', handleStreamToggle); // keep for backwards compat
