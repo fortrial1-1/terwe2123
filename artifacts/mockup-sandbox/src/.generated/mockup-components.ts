@@ -2,5 +2,6 @@
 type ModuleMap = Record<string, () => Promise<Record<string, unknown>>>;
 export const modules: ModuleMap = {
   "./components/mockups/imessage-ui/Dashboard.tsx": () => import("../components/mockups/imessage-ui/Dashboard.tsx"),
-  "./components/mockups/imessage-ui/Login.tsx": () => import("../components/mockups/imessage-ui/Login.tsx")
+  "./components/mockups/imessage-ui/Login.tsx": () => import("../components/mockups/imessage-ui/Login.tsx"),
+  "./components/mockups/imessage-ui/WelcomeSplit.tsx": () => import("../components/mockups/imessage-ui/WelcomeSplit.tsx")
 };
