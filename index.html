@@ -839,7 +839,7 @@
                 .catch(() => buildPill([]));
         }
 
-        function setLive(id, live) {
+        window.setLive = function setLive(id, live) {
             const dot = document.getElementById('dot-' + id);
             if (dot) dot.classList.toggle('on', live);
             fetch('/api/streams/' + id, {
