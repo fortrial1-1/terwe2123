@@ -18,6 +18,7 @@
             display: flex;
             width: 100vw;
             height: 100vh;
+            position: relative;
         }
 
         /* LEFT: video + dynamic background */
@@ -55,15 +56,15 @@
         }
 
         .left-brand {
-            position: absolute; top: 32px; left: 32px; z-index: 10;
+            position: absolute; top: 32px; left: 32px; z-index: 30;
         }
         .left-brand p { color: rgba(255,255,255,0.55); font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; font-weight: 600; }
         .left-brand span { color: rgba(255,255,255,0.28); font-size: 11px; display: block; margin-top: 3px; }
 
         /* Dynamic Island */
         .dynamic-island {
-            position: absolute; bottom: 32px; left: 0; right: 0;
-            display: flex; justify-content: center; z-index: 20; padding: 0 24px;
+            position: absolute; bottom: 32px; left: 0; right: 50%;
+            display: flex; justify-content: center; z-index: 30; padding: 0 24px;
         }
         .island-pill {
             display: flex; align-items: center; gap: 12px;
@@ -357,18 +358,69 @@
         @keyframes drift3 { 0%{transform:translateY(0) scale(1) rotate(0deg);opacity:.06} 50%{transform:translateY(-22px) scale(1.12) rotate(6deg);opacity:.12} 100%{transform:translateY(0) scale(1) rotate(0deg);opacity:.06} }
         @keyframes ping { 75%,100%{transform:scale(2);opacity:0} }
 
-        /* Mobile */
+        /* ── Mobile ── */
         @media (max-width: 768px) {
-            #welcomePage { flex-direction: column; overflow-y: auto; height: auto; min-height: 100vh; }
-            .welcome-left { width: 100%; height: 280px; }
-            .welcome-right { padding: 36px 24px 48px; }
-            .dynamic-island { bottom: 16px; }
-            .island-stage { font-size: 11px; }
-            .room-card { width: 100%; max-width: 340px; }
-            .room-main { width: 100%; max-width: 340px; }
+            /* Welcome page: video fills full screen, login overlays on top */
+            #welcomePage {
+                position: relative;
+                flex-direction: row;
+                height: 100vh;
+                overflow: hidden;
+            }
+
+            /* Video panel: full-screen background */
+            .welcome-left {
+                position: absolute;
+                inset: 0;
+                width: 100%;
+                height: 100%;
+                z-index: 0;
+            }
+
+            /* Dynamic Island: full width on mobile, above overlay */
+            .dynamic-island { bottom: 24px; padding: 0 16px; z-index: 30; left: 0; right: 0; }
+            .island-pill { gap: 8px; padding: 8px 12px; }
+            .island-stages { gap: 6px; }
+            .island-stage { font-size: 10px; }
+            .island-sep { display: none; }
+            .island-badge { padding: 3px 8px; }
+            .island-badge span { font-size: 10px; }
+
+            /* Login panel: centered overlay on top of video */
+            .welcome-right {
+                position: absolute;
+                inset: 0;
+                width: 100%;
+                height: 100%;
+                z-index: 10;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                padding: 32px 28px;
+                background: rgba(0, 0, 0, 0.50);
+                border-left: none;
+                text-align: center;
+            }
+
+            .welcome-right h1 { font-size: clamp(28px, 9vw, 42px); text-align: center; }
+            .welcome-right .tagline { font-size: 14px; max-width: 280px; text-align: center; }
+            .login-area { width: 100%; max-width: 320px; }
+
+            /* Dashboard */
+            .dash-inner { padding: 28px 18px 48px; }
+            .dash-header { flex-direction: column; gap: 14px; text-align: center; }
+            .dash-title { font-size: 22px; }
             .rooms-grid { flex-direction: column; align-items: center; }
-            .dash-inner { padding: 32px 20px 48px; }
-            .dash-header { flex-direction: column; gap: 16px; text-align: center; }
+            .room-card { width: 100%; max-width: 100%; }
+            .room-main { width: 100%; max-width: 100%; }
+            .glass-box { padding: 24px 18px; }
+        }
+
+        @media (max-width: 400px) {
+            .island-stages { display: none; }
+            .welcome-right { padding: 28px 20px; }
+            .welcome-right h1 { font-size: 26px; }
         }
     </style>
 </head>
@@ -389,35 +441,36 @@
         <div class="orb orb2"></div>
         <div class="orb orb3"></div>
 
-        <video id="bgVideo" autoplay loop muted playsinline>
-            <source src="https://raw.githubusercontent.com/twswithcrew009-lgtm/trri/main/images/ojoacs.mp4" type="video/mp4">
+        <video id="bgVideo" autoplay loop muted playsinline webkit-playsinline>
+            <source src="/images/ojoacs.mp4" type="video/mp4">
         </video>
 
         <div class="vignette"></div>
+    </div>
 
-        <div class="left-brand">
-            <p>KCON 2026</p>
-            <span>Stream Rooms</span>
-        </div>
+    <!-- Brand label & pill — siblings of both panels so z-index works on mobile -->
+    <div class="left-brand">
+        <p>KCON 2026</p>
+        <span>Stream Rooms</span>
+    </div>
 
-        <!-- Dynamic Island -->
-        <div class="dynamic-island">
-            <div class="island-pill">
-                <div class="island-dot-wrap">
-                    <div class="island-dot-ping"></div>
-                    <div class="island-dot"></div>
-                </div>
-                <div class="island-stages">
-                    <span class="island-stage">Artist Stage</span>
-                    <div class="island-sep"></div>
-                    <span class="island-stage">X Stage</span>
-                    <div class="island-sep"></div>
-                    <span class="island-stage">Mcountdown Stage</span>
-                </div>
-                <div class="island-badge">
-                    <div class="island-badge-dot"></div>
-                    <span>Live</span>
-                </div>
+    <!-- Dynamic Island -->
+    <div class="dynamic-island">
+        <div class="island-pill">
+            <div class="island-dot-wrap">
+                <div class="island-dot-ping"></div>
+                <div class="island-dot"></div>
+            </div>
+            <div class="island-stages">
+                <span class="island-stage">Artist Stage</span>
+                <div class="island-sep"></div>
+                <span class="island-stage">X Stage</span>
+                <div class="island-sep"></div>
+                <span class="island-stage">Mcountdown Stage</span>
+            </div>
+            <div class="island-badge">
+                <div class="island-badge-dot"></div>
+                <span>Live</span>
             </div>
         </div>
     </div>
@@ -652,6 +705,24 @@
             else { showDashboard(u); showSessionWarning(); startSessionTimer(); }
         } else {
             showWelcome();
+        }
+
+        // Force-play background video
+        const vid = document.getElementById('bgVideo');
+        if (vid) {
+            vid.muted = true;
+            vid.playsInline = true;
+            const tryPlay = () => {
+                vid.play().catch(err => {
+                    console.warn('🎬 Autoplay blocked, retrying on interaction:', err.message);
+                });
+            };
+            tryPlay();
+            vid.addEventListener('error', e => console.error('🎬 Video error:', vid.error && vid.error.message, e));
+            vid.addEventListener('canplay', () => { console.log('🎬 Video canplay'); tryPlay(); });
+            vid.addEventListener('loadeddata', () => console.log('🎬 Video loadeddata'));
+            document.addEventListener('touchstart', tryPlay, { once: true });
+            document.addEventListener('click', tryPlay, { once: true });
         }
     });
 
