@@ -81,15 +81,8 @@ app.get('/api/streams', (req, res) => {
   res.json(readStreams());
 });
 
-// Toggle a room's live status (must be a known user — checked via header or session)
+// Toggle a room's live status
 app.patch('/api/streams/:id', (req, res) => {
-  const headerUser = req.headers['x-username'];
-  const users = readUsers();
-  const sessionOk = req.session && req.session.user;
-  const headerOk  = headerUser && users.find(u => u.username === headerUser);
-  if (!sessionOk && !headerOk) {
-    return res.status(401).json({ error: 'Unauthorized' });
-  }
   const id = parseInt(req.params.id);
   const { live } = req.body;
   const data = readStreams();
