@@ -461,26 +461,8 @@
         <span>Stream Rooms</span>
     </div>
 
-    <!-- Dynamic Island -->
-    <div class="dynamic-island">
-        <div class="island-pill">
-            <div class="island-dot-wrap">
-                <div class="island-dot-ping"></div>
-                <div class="island-dot"></div>
-            </div>
-            <div class="island-stages">
-                <span class="island-stage">Artist Stage</span>
-                <div class="island-sep"></div>
-                <span class="island-stage">X Stage</span>
-                <div class="island-sep"></div>
-                <span class="island-stage">Mcountdown Stage</span>
-            </div>
-            <div class="island-badge">
-                <div class="island-badge-dot"></div>
-                <span>Live</span>
-            </div>
-        </div>
-    </div>
+    <!-- Dynamic Island (desktop) -->
+    <div class="dynamic-island" id="desktopIsland"></div>
 
     <!-- RIGHT -->
     <div class="welcome-right">
@@ -522,25 +504,7 @@
         </div>
 
         <!-- Mobile-only LIVE pill shown below login box -->
-        <div class="mobile-island">
-            <div class="island-pill">
-                <div class="island-dot-wrap">
-                    <div class="island-dot-ping"></div>
-                    <div class="island-dot"></div>
-                </div>
-                <div class="island-stages">
-                    <span class="island-stage">Artist Stage</span>
-                    <div class="island-sep"></div>
-                    <span class="island-stage">X Stage</span>
-                    <div class="island-sep"></div>
-                    <span class="island-stage">Mcountdown Stage</span>
-                </div>
-                <div class="island-badge">
-                    <div class="island-badge-dot"></div>
-                    <span>Live</span>
-                </div>
-            </div>
-        </div>
+        <div class="mobile-island" id="mobileIsland"></div>
     </div>
 </div>
 
@@ -734,6 +698,55 @@
         } else {
             showWelcome();
         }
+
+        // ── Live pill ──
+        function buildPill(rooms) {
+            const live = rooms.filter(r => r.live);
+            const desktopEl = document.getElementById('desktopIsland');
+            const mobileEl  = document.getElementById('mobileIsland');
+
+            if (live.length === 0) {
+                // Nothing live — render offline pill (no badge)
+                const html = `<div class="island-pill">
+                    <div class="island-dot-wrap">
+                        <div class="island-dot" style="background:#555"></div>
+                    </div>
+                    <div class="island-stages">
+                        <span class="island-stage" style="color:rgba(255,255,255,0.35)">No streams live</span>
+                    </div>
+                </div>`;
+                if (desktopEl) desktopEl.innerHTML = html;
+                if (mobileEl)  mobileEl.innerHTML  = html;
+            } else {
+                const stagesHtml = live.map((r, i) =>
+                    (i > 0 ? '<div class="island-sep"></div>' : '') +
+                    `<span class="island-stage">${r.name}</span>`
+                ).join('');
+                const html = `<div class="island-pill">
+                    <div class="island-dot-wrap">
+                        <div class="island-dot-ping"></div>
+                        <div class="island-dot"></div>
+                    </div>
+                    <div class="island-stages">${stagesHtml}</div>
+                    <div class="island-badge">
+                        <div class="island-badge-dot"></div>
+                        <span>Live</span>
+                    </div>
+                </div>`;
+                if (desktopEl) desktopEl.innerHTML = html;
+                if (mobileEl)  mobileEl.innerHTML  = html;
+            }
+        }
+
+        function fetchStreams() {
+            fetch('/api/streams')
+                .then(r => r.json())
+                .then(data => buildPill(data.rooms || []))
+                .catch(() => buildPill([]));
+        }
+
+        fetchStreams();
+        setInterval(fetchStreams, 30000); // refresh every 30s
 
         // Force-play background video
         const vid = document.getElementById('bgVideo');
