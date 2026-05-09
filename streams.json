@@ -1,0 +1,7 @@
+{
+  "rooms": [
+    { "id": 1, "name": "Artist Stage", "live": false },
+    { "id": 2, "name": "X Stage", "live": false },
+    { "id": 3, "name": "Mcountdown Stage", "live": false }
+  ]
+}
