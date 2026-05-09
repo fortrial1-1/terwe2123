@@ -861,17 +861,42 @@
             {id:3, name:'Mcountdown Stage', live:false}
         ];
 
-        // Always fetch from server — server is the single source of truth for all devices
+        // Fetch current state once from REST endpoint (used on load + SSE fallback)
         function fetchStreams() {
             fetch('/api/streams?t=' + Date.now(), { cache: 'no-store' })
                 .then(r => r.json())
                 .then(data => applyRooms(data.rooms || []))
                 .catch(() => {
-                    // API unreachable — use localStorage if available, otherwise show defaults
                     const saved = loadLocal();
                     buildPill(saved || DEFAULT_ROOMS);
                     if (saved) syncToggles(saved);
                 });
+        }
+
+        // SSE — server pushes updates instantly when admin toggles; polling is fallback only
+        let pollTimer = null;
+        function connectSSE() {
+            const es = new EventSource('/api/streams/events');
+
+            es.onmessage = function(e) {
+                try {
+                    const data = JSON.parse(e.data);
+                    if (data && Array.isArray(data.rooms)) applyRooms(data.rooms);
+                } catch (_) {}
+            };
+
+            es.onopen = function() {
+                // SSE connected — cancel fallback poll if running
+                if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+            };
+
+            es.onerror = function() {
+                // SSE dropped — start polling every 5s until reconnected
+                es.close();
+                if (!pollTimer) pollTimer = setInterval(fetchStreams, 5000);
+                // Retry SSE after 8s
+                setTimeout(connectSSE, 8000);
+            };
         }
 
         window.setLive = function setLive(id, live) {
@@ -896,11 +921,11 @@
             .catch(() => {}); // optimistic UI already applied
         }
 
-        // Show cached state instantly, then get live state from server
+        // Show cached state instantly, then connect SSE for real-time server push
         const initLocal = loadLocal();
         if (initLocal) { buildPill(initLocal); syncToggles(initLocal); }
-        fetchStreams();
-        setInterval(fetchStreams, 5000); // poll every 5s for fast cross-device sync
+        fetchStreams();   // get current state immediately on load
+        connectSSE();     // then keep in sync via SSE push (polling fallback built-in)
 
         // Force-play background video
         const vid = document.getElementById('bgVideo');
