@@ -59,6 +59,7 @@ function requireAuth(req, res, next) {
   res.redirect(`/index.html?authRequired=1&redirect=${redirect}`);
 }
 
+
 // Health check endpoint
 app.get('/api/health', (req, res) => {
   res.json({ status: 'Server is running', timestamp: new Date() });
