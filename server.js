@@ -89,17 +89,20 @@ app.get('/api/streams', (req, res) => {
   res.json(readStreams());
 });
 
-// Toggle a room's live status
-app.patch('/api/streams/:id', (req, res) => {
+// Toggle a room's live status — POST so all hosts/proxies support it
+function handleStreamToggle(req, res) {
   const id = parseInt(req.params.id);
   const { live } = req.body;
+  if (typeof live === 'undefined') return res.status(400).json({ error: 'Missing live field' });
   const data = readStreams();
   const room = data.rooms.find(r => r.id === id);
   if (!room) return res.status(404).json({ error: 'Room not found' });
   room.live = !!live;
   writeStreams(data);
   res.json({ success: true, room });
-});
+}
+app.patch('/api/streams/:id', handleStreamToggle); // keep for backwards compat
+app.post('/api/streams/:id', handleStreamToggle);  // POST alias — works on all hosts
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
