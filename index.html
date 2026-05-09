@@ -61,7 +61,7 @@
         .left-brand p { color: rgba(255,255,255,0.55); font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; font-weight: 600; }
         .left-brand span { color: rgba(255,255,255,0.28); font-size: 11px; display: block; margin-top: 3px; }
 
-        /* Mobile pill hidden on desktop */
+        /* Mobile pill — fixed at bottom on mobile, hidden on desktop */
         .mobile-island { display: none; }
 
         /* Dynamic Island */
@@ -427,11 +427,19 @@
                 z-index: 0;
             }
 
-            /* Hide floating pill on mobile — use inline one instead */
+            /* Hide floating pill on mobile — use fixed one instead */
             .dynamic-island { display: none; }
 
-            /* Mobile inline pill below login box */
-            .mobile-island { display: flex; justify-content: center; margin-top: 28px; width: 100%; }
+            /* Mobile pill fixed at bottom centre — never clipped by overflow */
+            .mobile-island {
+                display: flex;
+                position: fixed;
+                bottom: 28px;
+                left: 50%;
+                transform: translateX(-50%);
+                z-index: 100;
+                justify-content: center;
+            }
             .island-pill { gap: 8px; padding: 8px 12px; }
             .island-stages { gap: 6px; }
             .island-stage { font-size: 10px; }
@@ -552,10 +560,11 @@
             </div>
         </div>
 
-        <!-- Mobile-only LIVE pill shown below login box -->
-        <div class="mobile-island" id="mobileIsland"></div>
     </div>
 </div>
+
+<!-- Mobile LIVE pill — fixed at bottom, outside all flex containers -->
+<div class="mobile-island" id="mobileIsland"></div>
 
 <!-- ══════════════════════════════════
      DASHBOARD PAGE
